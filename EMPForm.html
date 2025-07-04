@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Location Submission</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e3f2fd;
+      color: #0d47a1;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      color: #1565c0;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #90caf9;
+      font-size: 16px;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #42a5f5;
+    }
+    button {
+      background-color: #ffeb3b;
+      color: #0d47a1;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #fdd835;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Branch Visit with Location</h2>
+
+  <form id="employeeForm">
+    <select id="client" required>
+      <option value="">Select Client</option>
+      <option value="IDFC Bank">IDFC Bank</option>
+      <option value="YES Bank">YES Bank</option>
+      <option value="Indusind Bank">Indusind Bank</option>
+      <option value="Bajaj Finserve">Bajaj Finserve</option>
+      <option value="HDFC Bank">HDFC Bank</option>
+      <option value="Others">Others</option>
+    </select>
+
+    <input type="text" id="branch" placeholder="Branch Name" required>
+    <input type="text" id="empCode" placeholder="Employee Code" required>
+    <input type="text" id="empName" placeholder="Employee Name" required>
+
+    <button type="button" onclick="submitForm()">Submit with Location</button>
+  </form>
+
+  <script>
+    function submitForm() {
+      const client = document.getElementById("client").value;
+      const branch = document.getElementById("branch").value.trim();
+      const empCode = document.getElementById("empCode").value.trim();
+      const empName = document.getElementById("empName").value.trim();
+
+      if (!client || !branch || !empCode || !empName) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by this browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        const data = {
+          client: client,
+          branch: branch,
+          empCode: empCode,
+          empName: empName,
+          lat: lat,
+          lng: lng
+        };
+
+        fetch("https://script.google.com/macros/s/AKfycby3_upGej_ZQnlOjEQzbhSGRskUF4oaYPya-ItBYyfSbZmDn3nQyivbx5ZbvR1ObGnUZA/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        })
+        .then(res => res.text())
+        .then(msg => {
+          alert("Submitted successfully!\nServer says: " + msg);
+          document.getElementById("employeeForm").reset();
+        })
+        .catch(err => {
+          alert("Error submitting data: " + err.message);
+        });
+
+      }, function(error) {
+        alert("Failed to get location: " + error.message);
+      });
+    }
+  </script>
+
+</body>
+</html>
